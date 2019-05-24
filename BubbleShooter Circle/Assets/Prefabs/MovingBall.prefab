@@ -106,9 +106,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Waypoints: []
-  SpeedDefault: 0.5
+  DefaultSpeed: 0.5
   SpeedUpTime: 0.5
-  SpeedUp: 1.55
+  FastSpeed: 1.55
   Speed: 0.5
 --- !u!54 &1256641951369409786
 Rigidbody:
