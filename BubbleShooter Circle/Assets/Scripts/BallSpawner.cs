@@ -46,6 +46,8 @@ public class BallSpawner : MonoBehaviour
         {
             if (Ball == HitBall)
             {
+                //CheckForTripples(Hitball, Index);
+
                 for (int i = Index; i >= 0; i--)
                 {
                     if (FirstMove)
@@ -63,6 +65,30 @@ public class BallSpawner : MonoBehaviour
             }
             else
                 Index++;
+        }
+    }
+
+    public void CheckForTripples(GameObject HitBall, int HitballSpot)
+    {
+        Color CurrentColor;
+        Color PreviousColor = Color.white;
+        int SameColors = 0;
+
+        for (int i = 0; i < SpawnedBalls.Count; i++)
+        {
+            CurrentColor = SpawnedBalls[i].GetComponent<Renderer>().material.color;
+
+            if(PreviousColor != null && CurrentColor == PreviousColor)
+            {
+                SameColors++;
+            }
+
+            if(SameColors >= 3)
+            {
+                Debug.Log("3 or more next to each other");
+            }
+
+            PreviousColor = CurrentColor;
         }
     }
 }
