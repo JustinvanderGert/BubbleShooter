@@ -64,6 +64,5 @@ public class BallHolder : MonoBehaviour
             GameObject BallToAdjust = WaitingBalls[i];
             BallToAdjust.transform.position = new Vector3(BallToAdjust.transform.position.x, BallToAdjust.transform.position.y, BallToAdjust.transform.position.z + 0.5f);
         }
-
     }
 }
