@@ -6,10 +6,10 @@ public class Turret : MonoBehaviour
 {
     BallHolder ballHolder;
 
-    bool Started;
+    bool GameStarted;
     bool AllowShot;
 
-    public GameObject ReadiedBallSpot;
+    public Transform ReadiedBallSpot;
     public GameObject ReadiedBall;
 
     public float RotSpeed;
@@ -25,11 +25,11 @@ public class Turret : MonoBehaviour
 
     IEnumerator ShowFirstBall()
     {
-        if (!Started)
+        if (!GameStarted)
         {
             yield return new WaitUntil(() => ReadiedBall != null);
             ReadiedBall.transform.position = transform.position;
-            Started = true;
+            GameStarted = true;
         }
     }
 
@@ -57,7 +57,7 @@ public class Turret : MonoBehaviour
 
             //Ready a new ball.
             ballHolder.OnClick();
-            ReadiedBall.transform.position = ReadiedBallSpot.transform.position;
+            ReadiedBall.transform.position = ReadiedBallSpot.position;
             StartCoroutine(ShootTimer());
         }
     }

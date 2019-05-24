@@ -10,9 +10,9 @@ public class Balls : MonoBehaviour
 
     public List<GameObject> Waypoints;
 
-    public float SpeedDefault;
+    public float DefaultSpeed;
     public float SpeedUpTime;
-    public float SpeedUp;
+    public float FastSpeed;
     public float Speed;
 
 
@@ -62,12 +62,12 @@ public class Balls : MonoBehaviour
 
     public IEnumerator StartSpeedUp()
     {
-        Speed = SpeedUp;
+        Speed = FastSpeed;
         Debug.Log(Speed);
 
         yield return new WaitForSeconds(SpeedUpTime);
 
-        Speed = SpeedDefault;
+        Speed = DefaultSpeed;
         Debug.Log(Speed);
     }
 }

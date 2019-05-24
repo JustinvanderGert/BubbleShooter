@@ -4,10 +4,10 @@ using UnityEngine;
 
 public class BallSpawner : MonoBehaviour
 {
-    public List<Color> BallColors;
+    public List<Color> PossibleBallColors;
     public List<GameObject> SpawnedBalls;
 
-    public GameObject Ball;
+    public GameObject BallPrefab;
 
     public float SpawnTimer;
 
@@ -16,21 +16,21 @@ public class BallSpawner : MonoBehaviour
 
     void Start()
     {
-        BallColors.Add(Color.blue);
-        BallColors.Add(Color.red);
-        BallColors.Add(Color.green);
+        PossibleBallColors.Add(Color.blue);
+        PossibleBallColors.Add(Color.red);
+        PossibleBallColors.Add(Color.green);
 
         StartCoroutine(Spawner());
     }
 
     public IEnumerator Spawner()
     {
-        int i = Random.Range(0, BallColors.Count);
+        int i = Random.Range(0, PossibleBallColors.Count);
         BallsToSend--;
 
         yield return new WaitForSeconds(SpawnTimer);
-        GameObject BallToSetUp = Instantiate(Ball, transform.position, transform.rotation);
-        BallToSetUp.GetComponent<Renderer>().material.SetColor("_Color", BallColors[i]);
+        GameObject BallToSetUp = Instantiate(BallPrefab, transform.position, transform.rotation);
+        BallToSetUp.GetComponent<Renderer>().material.SetColor("_Color", PossibleBallColors[i]);
         SpawnedBalls.Add(BallToSetUp);
 
         if (BallsToSend >= 1)

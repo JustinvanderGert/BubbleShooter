@@ -7,10 +7,10 @@ public class BallHolder : MonoBehaviour
     Turret turret;
 
     public List<GameObject> WaitingBalls;
-    public List<Color> BallColors;
+    public List<Color> PossibleBallColors;
 
-    public Transform NewBallSpot;
-    public Transform NextUpBallSpot;
+    public Transform LastBallSpot;
+    public Transform FirstBallSpot;
 
     public GameObject BallPrefab;
 
@@ -19,16 +19,16 @@ public class BallHolder : MonoBehaviour
     {
         turret = FindObjectOfType<Turret>();
 
-        BallColors.Add(Color.blue);
-        BallColors.Add(Color.red);
-        BallColors.Add(Color.green);
+        PossibleBallColors.Add(Color.blue);
+        PossibleBallColors.Add(Color.red);
+        PossibleBallColors.Add(Color.green);
 
         for(int i = 0; i <= 4; i++)
         {
-            int ColorI = Random.Range(0, BallColors.Count);
+            int ColorI = Random.Range(0, PossibleBallColors.Count);
 
-            GameObject BallToColor = Instantiate(BallPrefab, NextUpBallSpot.position, Quaternion.Euler(new Vector3(0, 0, 0)));
-            BallToColor.GetComponent<Renderer>().material.SetColor("_Color", BallColors[ColorI]);
+            GameObject BallToColor = Instantiate(BallPrefab, FirstBallSpot.position, Quaternion.Euler(new Vector3(0, 0, 0)));
+            BallToColor.GetComponent<Renderer>().material.SetColor("_Color", PossibleBallColors[ColorI]);
             BallToColor.transform.position = new Vector3(BallToColor.transform.position.x, BallToColor.transform.position.y, BallToColor.transform.position.z - 0.5f * i);
 
             WaitingBalls.Add(BallToColor);
@@ -43,7 +43,7 @@ public class BallHolder : MonoBehaviour
     public void OnClick()
     {
         //Set balls new parent, rotation, size and position.
-        WaitingBalls[0].transform.parent = turret.ReadiedBallSpot.transform;
+        WaitingBalls[0].transform.parent = turret.ReadiedBallSpot;
         WaitingBalls[0].transform.localRotation = Quaternion.Euler(new Vector3(0, 0, 0));
         WaitingBalls[0].transform.localScale = new Vector3(1, 1, 1);
         WaitingBalls[0].transform.position = new Vector3(0, 0, 0);
@@ -53,8 +53,8 @@ public class BallHolder : MonoBehaviour
         WaitingBalls.Remove(WaitingBalls[0]);
 
         //Create new third ball.
-        GameObject BallToColor = Instantiate(BallPrefab, NewBallSpot.position, transform.rotation);
-        BallToColor.GetComponent<Renderer>().material.SetColor("_Color", BallColors[Random.Range(0, BallColors.Count)]);
+        GameObject BallToColor = Instantiate(BallPrefab, LastBallSpot.position, transform.rotation);
+        BallToColor.GetComponent<Renderer>().material.SetColor("_Color", PossibleBallColors[Random.Range(0, PossibleBallColors.Count)]);
 
         WaitingBalls.Add(BallToColor);
 
