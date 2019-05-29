@@ -47,7 +47,6 @@ public class BallSpawner : MonoBehaviour
         {
             if (Ball == HitBall)
             {
-                CheckForTripples(ShotBall, Index);
 
                 for (int i = Index; i >= 0; i--)
                 {
@@ -62,6 +61,7 @@ public class BallSpawner : MonoBehaviour
 
                     StartCoroutine(SpawnedBalls[i].GetComponent<Balls>().StartSpeedUp());
                 }
+                CheckForTripples(ShotBall, Index);
                 break;
             }
             else
