@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class BallSpawner : MonoBehaviour
 {
+    public List<GameObject> SameColoredBalls;
     public List<Color> PossibleBallColors;
     public List<GameObject> SpawnedBalls;
 
@@ -37,7 +38,7 @@ public class BallSpawner : MonoBehaviour
             StartCoroutine(Spawner());
     }
 
-    public void SpeedUp(GameObject HitBall)
+    public void SpeedUp(GameObject HitBall, GameObject ShotBall)
     {
         bool FirstMove = true;
         int Index = 0;
@@ -46,7 +47,7 @@ public class BallSpawner : MonoBehaviour
         {
             if (Ball == HitBall)
             {
-                //CheckForTripples(Hitball, Index);
+                CheckForTripples(ShotBall, Index);
 
                 for (int i = Index; i >= 0; i--)
                 {
@@ -68,27 +69,48 @@ public class BallSpawner : MonoBehaviour
         }
     }
 
-    public void CheckForTripples(GameObject HitBall, int HitballSpot)
+    public void CheckForTripples(GameObject ShotBall, int HitballSpot)
     {
-        Color CurrentColor;
-        Color PreviousColor = Color.white;
+        int TempInt = HitballSpot;
+        int MaxDistanceAlowed = TempInt- 3;
         int SameColors = 0;
+        
+        Color PreviousColor = ShotBall.GetComponent<Renderer>().material.color;
 
-        for (int i = 0; i < SpawnedBalls.Count; i++)
+
+        HitballSpot += 1;
+        if (MaxDistanceAlowed <= 0)
+            MaxDistanceAlowed = 0;
+
+        for (int i = HitballSpot; i >= MaxDistanceAlowed; i--)
         {
-            CurrentColor = SpawnedBalls[i].GetComponent<Renderer>().material.color;
+            Color BallColor = SpawnedBalls[i].GetComponent<Renderer>().material.color;
+            Color CurrentColor = BallColor;
 
-            if(PreviousColor != null && CurrentColor == PreviousColor)
+            if (CurrentColor == PreviousColor)
             {
+                Debug.Log("Has same Color next to it");
+                BallColor = Color.white;
+                SameColoredBalls.Add(SpawnedBalls[i]);
                 SameColors++;
+            }
+            else
+            {
+                Debug.Log("Does not have same Color next to it");
+                BallColor = Color.black;
             }
 
             if(SameColors >= 3)
             {
                 Debug.Log("3 or more next to each other");
-            }
+                foreach(GameObject SameColoredBall in SameColoredBalls)
+                {
+                    SpawnedBalls.Remove(SameColoredBall);
 
-            PreviousColor = CurrentColor;
+                    Destroy(SameColoredBall);
+                }
+            }
         }
+        SameColoredBalls.Clear();
     }
 }
