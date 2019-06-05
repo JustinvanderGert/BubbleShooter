@@ -16,13 +16,11 @@ public class ShotBall : MonoBehaviour
     {
         MyColor = GetComponent<Renderer>().material.color;
     }
-    
+
     void Update()
     {
         if (Shot)
-        {
             transform.Translate(Vector3.forward * Speed * Time.deltaTime);
-        }
     }
 
     public void Shoot()
@@ -46,7 +44,7 @@ public class ShotBall : MonoBehaviour
             Shot = false;
             Balls HitBall = Other.gameObject.GetComponent<Balls>();
             HitBall.PlaceShotBall(MyColor);
-            
+
             Destroy(gameObject);
         }
     }

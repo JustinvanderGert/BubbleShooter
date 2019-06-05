@@ -23,7 +23,7 @@ public class BallHolder : MonoBehaviour
         PossibleBallColors.Add(Color.red);
         PossibleBallColors.Add(Color.green);
 
-        for(int i = 0; i <= 4; i++)
+        for (int i = 0; i <= 4; i++)
         {
             int ColorI = Random.Range(0, PossibleBallColors.Count);
 
@@ -34,12 +34,12 @@ public class BallHolder : MonoBehaviour
             WaitingBalls.Add(BallToColor);
             i++;
         }
-        for(int i = 0; i< 3; i++)
+        for (int i = 0; i < 3; i++)
         {
             OnClick();
         }
     }
-    
+
     public void OnClick()
     {
         //Set balls new parent, rotation, size and position.

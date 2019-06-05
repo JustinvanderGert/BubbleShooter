@@ -66,7 +66,6 @@ public class BallSpawner : MonoBehaviour
         {
             if (Ball == HitBall)
             {
-
                 for (int i = Index; i >= 0; i--)
                 {
                     if (FirstMove)
@@ -91,9 +90,9 @@ public class BallSpawner : MonoBehaviour
     public void CheckForTripples(GameObject ShotBall, int HitballSpot)
     {
         int TempInt = HitballSpot;
-        int MaxDistanceAlowed = TempInt -4;
+        int MaxDistanceAlowed = TempInt - 4;
         int SameColors = 0;
-        
+
         Color PreviousColor = ShotBall.GetComponent<Renderer>().material.color;
 
         if (MaxDistanceAlowed <= 0)
@@ -122,7 +121,7 @@ public class BallSpawner : MonoBehaviour
             if (SameColors >= 3)
             {
                 Debug.Log("3 or more next to each other");
-                foreach(GameObject SameColoredBall in SameColoredBalls)
+                foreach (GameObject SameColoredBall in SameColoredBalls)
                 {
                     SpawnedBalls.Remove(SameColoredBall);
 

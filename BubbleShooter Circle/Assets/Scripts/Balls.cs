@@ -9,6 +9,7 @@ public class Balls : MonoBehaviour
     int Index = 0;
 
     bool SpeedingUp;
+    bool Moving = true;
 
     public List<GameObject> Waypoints;
 
@@ -26,24 +27,28 @@ public class Balls : MonoBehaviour
 
     void Update()
     {
-        Vector3 targetDir = Waypoints[Index].transform.position - transform.position;
-        Vector3 newDir = Vector3.RotateTowards(transform.forward, targetDir, Speed, 0.0f);
-
-        transform.rotation = Quaternion.LookRotation(newDir);
-        transform.position = Vector3.MoveTowards(transform.position, Waypoints[Index].transform.position, Speed * Time.deltaTime);
-
-        float Distance = Vector3.Distance(transform.position, Waypoints[Index].transform.position);
-        if (Distance <= 0)
+        if (Moving)
         {
-            Index++;
+            Vector3 targetDir = Waypoints[Index].transform.position - transform.position;
+            Vector3 newDir = Vector3.RotateTowards(transform.forward, targetDir, Speed, 0.0f);
+
+            transform.rotation = Quaternion.LookRotation(newDir);
+            transform.position = Vector3.MoveTowards(transform.position, Waypoints[Index].transform.position, Speed * Time.deltaTime);
+
+            float Distance = Vector3.Distance(transform.position, Waypoints[Index].transform.position);
+            if (Distance <= 0)
+            {
+                Index++;
+            }
         }
 
         float DistancePreviousBall = Vector3.Distance(transform.position, ballSpawner.CheckListPos(gameObject).transform.position);
         Debug.Log(DistancePreviousBall);
-        if(DistancePreviousBall > 0.66f && !SpeedingUp)
+        if (DistancePreviousBall > 0.66f && !SpeedingUp)
         {
             MoveBack();
-        }else if(DistancePreviousBall < 0.66f && !SpeedingUp)
+        }
+        else if (DistancePreviousBall < 0.66f && !SpeedingUp)
         {
             MoveAgain();
         }
@@ -51,10 +56,26 @@ public class Balls : MonoBehaviour
 
     void MoveBack()
     {
-        Speed = 0;
+        Moving = false;
+
+        GameObject PreviousBall = ballSpawner.CheckListPos(gameObject);
+
+        Vector3 targetDir = PreviousBall.transform.position - transform.position;
+        Vector3 newDir = Vector3.RotateTowards(transform.forward, targetDir, Speed, 0.0f);
+
+        transform.rotation = Quaternion.LookRotation(newDir);
+        transform.position = Vector3.MoveTowards(transform.position, PreviousBall.transform.position, Speed * 2 * Time.deltaTime);
+
+
+        float DistancePreviousBall = Vector3.Distance(transform.position, PreviousBall.transform.position);
+        if (DistancePreviousBall < 0.66f && !SpeedingUp)
+        {
+            MoveAgain();
+        }
     }
     void MoveAgain()
     {
+        Moving = true;
         Speed = DefaultSpeed;
     }
 
@@ -78,19 +99,16 @@ public class Balls : MonoBehaviour
         ballSpawner.SpawnedBalls.Insert(ThisObjectInList, BallToSetUp);
         BallToSetupScript.Index = Index;
         ballSpawner.SpeedUp(gameObject, BallToSetUp);
-        //Debug.Log("New Ball Spawned");
     }
 
     public IEnumerator StartSpeedUp()
     {
         SpeedingUp = true;
         Speed = FastSpeed;
-        //Debug.Log(Speed);
 
         yield return new WaitForSeconds(SpeedUpTime);
 
         Speed = DefaultSpeed;
         SpeedingUp = false;
-        //Debug.Log(Speed);
     }
 }
