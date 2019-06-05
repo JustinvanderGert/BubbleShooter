@@ -10,6 +10,8 @@ public class BallSpawner : MonoBehaviour
 
     public GameObject BallPrefab;
 
+    public Transform SpawnPos;
+
     public float SpawnTimer;
 
     public int BallsToSend;
@@ -30,12 +32,29 @@ public class BallSpawner : MonoBehaviour
         BallsToSend--;
 
         yield return new WaitForSeconds(SpawnTimer);
-        GameObject BallToSetUp = Instantiate(BallPrefab, transform.position, transform.rotation);
+        GameObject BallToSetUp = Instantiate(BallPrefab, SpawnPos.transform.position, transform.rotation);
         BallToSetUp.GetComponent<Renderer>().material.SetColor("_Color", PossibleBallColors[i]);
         SpawnedBalls.Add(BallToSetUp);
 
         if (BallsToSend >= 1)
             StartCoroutine(Spawner());
+    }
+
+    public GameObject CheckListPos(GameObject BallToCheck)
+    {
+        int Index = 0;
+        foreach (GameObject Ball in SpawnedBalls)
+        {
+            if (Ball == BallToCheck)
+            {
+                Index++;
+                break;
+            }
+            else
+                Index++;
+        }
+        GameObject PreviousBall = SpawnedBalls[Index];
+        return PreviousBall;
     }
 
     public void SpeedUp(GameObject HitBall, GameObject ShotBall)
@@ -98,7 +117,7 @@ public class BallSpawner : MonoBehaviour
                 BallColor = Color.black;
             }
 
-            SpawnedBalls[i].GetComponent<Renderer>().material.color = BallColor;
+            //SpawnedBalls[i].GetComponent<Renderer>().material.color = BallColor;
 
             if (SameColors >= 3)
             {

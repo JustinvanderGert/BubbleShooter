@@ -8,6 +8,8 @@ public class Balls : MonoBehaviour
 
     int Index = 0;
 
+    bool SpeedingUp;
+
     public List<GameObject> Waypoints;
 
     public float DefaultSpeed;
@@ -35,6 +37,25 @@ public class Balls : MonoBehaviour
         {
             Index++;
         }
+
+        float DistancePreviousBall = Vector3.Distance(transform.position, ballSpawner.CheckListPos(gameObject).transform.position);
+        Debug.Log(DistancePreviousBall);
+        if(DistancePreviousBall > 0.66f && !SpeedingUp)
+        {
+            MoveBack();
+        }else if(DistancePreviousBall < 0.66f && !SpeedingUp)
+        {
+            MoveAgain();
+        }
+    }
+
+    void MoveBack()
+    {
+        Speed = 0;
+    }
+    void MoveAgain()
+    {
+        Speed = DefaultSpeed;
     }
 
     public void PlaceShotBall(Color BallColor)
@@ -62,12 +83,14 @@ public class Balls : MonoBehaviour
 
     public IEnumerator StartSpeedUp()
     {
+        SpeedingUp = true;
         Speed = FastSpeed;
         //Debug.Log(Speed);
 
         yield return new WaitForSeconds(SpeedUpTime);
 
         Speed = DefaultSpeed;
+        SpeedingUp = false;
         //Debug.Log(Speed);
     }
 }
