@@ -5,7 +5,6 @@ using UnityEngine;
 public class Balls : MonoBehaviour
 {
     BallSpawner ballSpawner;
-
     int Index = 0;
 
     bool SpeedingUp;
@@ -17,11 +16,13 @@ public class Balls : MonoBehaviour
     public float SpeedUpTime;
     public float FastSpeed;
     public float Speed;
+    public Color MyColor;
 
 
     void Start()
     {
         Waypoints.AddRange(GameObject.FindGameObjectsWithTag("Waypoints"));
+        MyColor = GetComponent<Renderer>().material.color;
         ballSpawner = FindObjectOfType<BallSpawner>();
     }
 
@@ -41,14 +42,14 @@ public class Balls : MonoBehaviour
                 Index++;
             }
         }
-
-        float DistancePreviousBall = Vector3.Distance(transform.position, ballSpawner.CheckListPos(gameObject).transform.position);
-        Debug.Log(DistancePreviousBall);
+        
+        float DistancePreviousBall = Vector3.Distance(transform.position, ballSpawner.CheckPreviousBall(this).transform.position);
         if (DistancePreviousBall > 0.66f && !SpeedingUp)
         {
+            Debug.Log("Move Back");
             MoveBack();
         }
-        else if (DistancePreviousBall < 0.66f && !SpeedingUp)
+        else if (DistancePreviousBall < 0.66f && !SpeedingUp && !Moving)
         {
             MoveAgain();
         }
@@ -58,14 +59,12 @@ public class Balls : MonoBehaviour
     {
         Moving = false;
 
-        GameObject PreviousBall = ballSpawner.CheckListPos(gameObject);
-
-        Vector3 targetDir = PreviousBall.transform.position - transform.position;
-        Vector3 newDir = Vector3.RotateTowards(transform.forward, targetDir, Speed, 0.0f);
+        var PreviousBall = ballSpawner.CheckPreviousBall(this);
+        var targetDir = PreviousBall.transform.position - transform.position;
+        var newDir = Vector3.RotateTowards(transform.forward, targetDir, Speed, 0.0f);
 
         transform.rotation = Quaternion.LookRotation(newDir);
         transform.position = Vector3.MoveTowards(transform.position, PreviousBall.transform.position, Speed * 2 * Time.deltaTime);
-
 
         float DistancePreviousBall = Vector3.Distance(transform.position, PreviousBall.transform.position);
         if (DistancePreviousBall < 0.66f && !SpeedingUp)
@@ -77,28 +76,30 @@ public class Balls : MonoBehaviour
     {
         Moving = true;
         Speed = DefaultSpeed;
+
+        //var PrevBall = ballSpawner.CheckPreviousBall(this);
+        //var PrevBallScript = PrevBall.GetComponent<Balls>();
+
+        //float Distance1 = Vector3.Distance(transform.position, Waypoints[Index].transform.position);
+        //float Distance2 = Vector3.Distance(transform.position, Waypoints[PrevBallScript.Index].transform.position);
+        //if (Distance1 > Distance2)
+        //{
+        //    Index = PrevBallScript.Index;
+        //}
     }
 
     public void PlaceShotBall(Color BallColor)
     {
-        int ThisObjectInList = 0;
-        for (int i = 0; i < Waypoints.Count; i++)
-        {
-            if (ballSpawner.SpawnedBalls[i] == gameObject)
-            {
-                ThisObjectInList = i;
-                break;
-            }
-            else
-                continue;
-        }
+        var BallToSetUp = Instantiate(this, transform.position, transform.rotation);
+        var BallToSetupScript = BallToSetUp.GetComponent<Balls>();
+        var Renderer = BallToSetUp.GetComponent<Renderer>();
+        var ListPos = ballSpawner.CheckListPos(this);
 
-        GameObject BallToSetUp = Instantiate(gameObject, transform.position, transform.rotation);
-        Balls BallToSetupScript = BallToSetUp.GetComponent<Balls>();
-        BallToSetUp.GetComponent<Renderer>().material.SetColor("_Color", BallColor);
-        ballSpawner.SpawnedBalls.Insert(ThisObjectInList, BallToSetUp);
+        Renderer.material.SetColor("_Color", BallColor);
+        BallToSetupScript.MyColor = BallColor;
+        ballSpawner.SpawnedBalls.Insert(ListPos, BallToSetUp);
         BallToSetupScript.Index = Index;
-        ballSpawner.SpeedUp(gameObject, BallToSetUp);
+        ballSpawner.SpeedUp(this, BallToSetUp);
     }
 
     public IEnumerator StartSpeedUp()

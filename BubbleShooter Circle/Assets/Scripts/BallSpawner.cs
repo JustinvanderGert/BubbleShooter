@@ -2,132 +2,128 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BallSpawner : MonoBehaviour
+public sealed class BallSpawner : MonoBehaviour
 {
-    public List<GameObject> SameColoredBalls;
-    public List<Color> PossibleBallColors;
-    public List<GameObject> SpawnedBalls;
+    public static readonly Color[] Colors =
+    {
+        new Color(1, 0, 0, 1),
+        new Color(0, 1, 0, 1),
+        new Color(0, 0, 1, 0),
+    };
 
-    public GameObject BallPrefab;
+
+    public List<Balls> SpawnedBalls;
 
     public Transform SpawnPos;
-
+    public Balls BallPrefab;
     public float SpawnTimer;
-
     public int BallsToSend;
 
+    bool AllowSpeedUp = true;
 
-    void Start()
+
+    IEnumerator Start()
     {
-        PossibleBallColors.Add(Color.blue);
-        PossibleBallColors.Add(Color.red);
-        PossibleBallColors.Add(Color.green);
-
-        StartCoroutine(Spawner());
-    }
-
-    public IEnumerator Spawner()
-    {
-        int i = Random.Range(0, PossibleBallColors.Count);
-        BallsToSend--;
-
-        yield return new WaitForSeconds(SpawnTimer);
-        GameObject BallToSetUp = Instantiate(BallPrefab, SpawnPos.transform.position, transform.rotation);
-        BallToSetUp.GetComponent<Renderer>().material.SetColor("_Color", PossibleBallColors[i]);
-        SpawnedBalls.Add(BallToSetUp);
-
-        if (BallsToSend >= 1)
-            StartCoroutine(Spawner());
-    }
-
-    public GameObject CheckListPos(GameObject BallToCheck)
-    {
-        int Index = 0;
-        foreach (GameObject Ball in SpawnedBalls)
+        for (var i = 0; i < BallsToSend; i++)
         {
-            if (Ball == BallToCheck)
-            {
-                Index++;
-                break;
-            }
-            else
-                Index++;
-        }
-        GameObject PreviousBall = SpawnedBalls[Index];
-        return PreviousBall;
-    }
+            yield return new WaitForSeconds(SpawnTimer);
 
-    public void SpeedUp(GameObject HitBall, GameObject ShotBall)
-    {
-        bool FirstMove = true;
-        int Index = 0;
+            var ball = Instantiate(BallPrefab, SpawnPos.position, transform.rotation);
+            var renderer = ball.GetComponent<Renderer>();
+            var randomIndex = Random.Range(0, Colors.Length);
+            var color = Colors[randomIndex];
 
-        foreach (GameObject Ball in SpawnedBalls)
-        {
-            if (Ball == HitBall)
-            {
-                for (int i = Index; i >= 0; i--)
-                {
-                    if (FirstMove)
-                    {
-                        Index++;
-                        FirstMove = false;
-                        continue;
-                    }
-                    if (i < 0)
-                        break;
-
-                    StartCoroutine(SpawnedBalls[i].GetComponent<Balls>().StartSpeedUp());
-                }
-                CheckForTripples(ShotBall, Index);
-                break;
-            }
-            else
-                Index++;
+            ball.GetComponent<Balls>().MyColor = color;
+            renderer.material.SetColor("_Color", color);
+            SpawnedBalls.Add(ball);
         }
     }
 
-    public void CheckForTripples(GameObject ShotBall, int HitballSpot)
+
+    public GameObject CheckPreviousBall(Balls BallToCheck)
     {
-        int TempInt = HitballSpot;
-        int MaxDistanceAlowed = TempInt - 4;
-        int SameColors = 0;
+        var index = SpawnedBalls.IndexOf(BallToCheck);
+        index++;
 
-        Color PreviousColor = ShotBall.GetComponent<Renderer>().material.color;
+        if (index == SpawnedBalls.Count)
+            index--;
 
-        if (MaxDistanceAlowed <= 0)
-            MaxDistanceAlowed = 0;
+        var PreviousBall = SpawnedBalls[index];
+        return PreviousBall.gameObject;
+    }
+    public int CheckListPos(Balls BallToCheck)
+    {
+        var index = SpawnedBalls.IndexOf(BallToCheck);
 
-        for (int i = HitballSpot; i >= MaxDistanceAlowed; i--)
+        if (index == SpawnedBalls.Count)
+            index--;
+
+        return index;
+    }
+
+
+    public void SpeedUp(Balls HitBall, Balls ShotBall)
+    {
+        var index = SpawnedBalls.IndexOf(HitBall);
+        if (index < 0)
+            return;
+
+        AllowSpeedUp = true;
+        CheckForTripples(ShotBall, index);
+
+        if (AllowSpeedUp)
         {
-            Color BallColor = SpawnedBalls[i].GetComponent<Renderer>().material.color;
-            Color CurrentColor = BallColor;
-
-            if (CurrentColor == PreviousColor)
+            for (var i = index - 1; i >= 0; i--)
             {
-                Debug.Log("Has same Color next to it");
-                BallColor = Color.white;
+                StartCoroutine(SpawnedBalls[i].StartSpeedUp());
+                SpawnedBalls[i].StartSpeedUp();
+            }
+        }
+    }
+
+    public List<Balls> SameColoredBalls;
+    public void CheckForTripples(Balls ShotBall, int HitballSpot)
+    {
+        var MyColor = ShotBall.MyColor;
+        for (var i = HitballSpot; i >= 0; i++)
+        {
+            if (SpawnedBalls[i].MyColor == MyColor)
+            {
                 SameColoredBalls.Add(SpawnedBalls[i]);
-                SameColors++;
+                continue;
             }
             else
-            {
-                Debug.Log("Does not have same Color next to it");
-                BallColor = Color.black;
-            }
+                break;
+        }
 
-            //SpawnedBalls[i].GetComponent<Renderer>().material.color = BallColor;
-
-            if (SameColors >= 3)
+        HitballSpot -= 2;
+        if (HitballSpot > 0)
+        {
+            for (var i = HitballSpot; i < SpawnedBalls.Count; i--)
             {
-                Debug.Log("3 or more next to each other");
-                foreach (GameObject SameColoredBall in SameColoredBalls)
+                if (SpawnedBalls[i].MyColor == MyColor)
                 {
-                    SpawnedBalls.Remove(SameColoredBall);
-
-                    Destroy(SameColoredBall);
+                    SameColoredBalls.Add(SpawnedBalls[i]);
+                    continue;
                 }
+                else
+                    break;
             }
+        }
+
+
+        if (SameColoredBalls.Count >= 2)
+        {
+            AllowSpeedUp = false;
+            SameColoredBalls.Add(ShotBall);
+
+            for (var i = 0; i < SameColoredBalls.Count; i++)
+            {
+                Debug.Log("Destroy same colored balls.");
+                SpawnedBalls.Remove(SameColoredBalls[i]);
+                Destroy(SameColoredBalls[i].gameObject);
+            }
+            SameColoredBalls.Clear();
         }
         SameColoredBalls.Clear();
     }
