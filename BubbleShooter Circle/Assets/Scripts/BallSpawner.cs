@@ -99,7 +99,7 @@ public sealed class BallSpawner : MonoBehaviour
         HitballSpot -= 2;
         if (HitballSpot > 0)
         {
-            for (var i = HitballSpot; i < SpawnedBalls.Count; i--)
+            for (var i = HitballSpot; i <= SpawnedBalls.Count; i--)
             {
                 if (SpawnedBalls[i].MyColor == MyColor)
                 {
@@ -119,7 +119,6 @@ public sealed class BallSpawner : MonoBehaviour
 
             for (var i = 0; i < SameColoredBalls.Count; i++)
             {
-                Debug.Log("Destroy same colored balls.");
                 SpawnedBalls.Remove(SameColoredBalls[i]);
                 Destroy(SameColoredBalls[i].gameObject);
             }

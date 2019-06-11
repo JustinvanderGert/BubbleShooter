@@ -42,11 +42,10 @@ public class Balls : MonoBehaviour
                 Index++;
             }
         }
-        
+
         float DistancePreviousBall = Vector3.Distance(transform.position, ballSpawner.CheckPreviousBall(this).transform.position);
         if (DistancePreviousBall > 0.66f && !SpeedingUp)
         {
-            Debug.Log("Move Back");
             MoveBack();
         }
         else if (DistancePreviousBall < 0.66f && !SpeedingUp && !Moving)
