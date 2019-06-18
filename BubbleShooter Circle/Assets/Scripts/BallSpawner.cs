@@ -76,7 +76,6 @@ public sealed class BallSpawner : MonoBehaviour
             for (var i = index - 1; i >= 0; i--)
             {
                 StartCoroutine(SpawnedBalls[i].StartSpeedUp());
-                SpawnedBalls[i].StartSpeedUp();
             }
         }
     }

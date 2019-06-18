@@ -1,21 +1,25 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.AI;
 using UnityEngine;
 
 public class Balls : MonoBehaviour
 {
     BallSpawner ballSpawner;
+    NavMeshAgent Agent;
+    Vector3 destination;
     int Index = 0;
 
     bool SpeedingUp;
     bool Moving = true;
 
-    public List<GameObject> Waypoints;
+    float DefaultSpeed = 0.6f;
+    float SpeedUpTime = 1.0f;
+    float FastSpeed = 1.2f;
+    float Speed = 0.6f;
 
-    public float DefaultSpeed;
-    public float SpeedUpTime;
-    public float FastSpeed;
-    public float Speed;
+    public List<GameObject> Waypoints;
+    public Transform SpawnPos;
     public Color MyColor;
 
 
@@ -24,31 +28,34 @@ public class Balls : MonoBehaviour
         Waypoints.AddRange(GameObject.FindGameObjectsWithTag("Waypoints"));
         MyColor = GetComponent<Renderer>().material.color;
         ballSpawner = FindObjectOfType<BallSpawner>();
+        Agent = GetComponent<NavMeshAgent>();
+        
+        destination = Waypoints[Index].transform.position;
+        Agent.destination = destination;
     }
 
     void Update()
     {
+        Agent.speed = Speed;
+
         if (Moving)
         {
-            Vector3 targetDir = Waypoints[Index].transform.position - transform.position;
-            Vector3 newDir = Vector3.RotateTowards(transform.forward, targetDir, Speed, 0.0f);
-
-            transform.rotation = Quaternion.LookRotation(newDir);
-            transform.position = Vector3.MoveTowards(transform.position, Waypoints[Index].transform.position, Speed * Time.deltaTime);
-
-            float Distance = Vector3.Distance(transform.position, Waypoints[Index].transform.position);
-            if (Distance <= 0)
+            float Distance = Vector3.Distance(transform.position, Agent.destination);
+            if (Distance <= 0.5f)
             {
-                Index++;
+                destination = Waypoints[Index++].transform.position;
+                Agent.destination = destination;
             }
         }
 
-        float DistancePreviousBall = Vector3.Distance(transform.position, ballSpawner.CheckPreviousBall(this).transform.position);
-        if (DistancePreviousBall > 0.66f && !SpeedingUp)
+        var PrevBallPos = ballSpawner.CheckPreviousBall(this).transform.position;
+        float DistancePreviousBall = Vector3.Distance(transform.position, PrevBallPos);
+
+        if (DistancePreviousBall > 1 && !SpeedingUp)
         {
             MoveBack();
         }
-        else if (DistancePreviousBall < 0.66f && !SpeedingUp && !Moving)
+        else if (DistancePreviousBall < 1f && !SpeedingUp && !Moving)
         {
             MoveAgain();
         }
@@ -59,37 +66,28 @@ public class Balls : MonoBehaviour
         Moving = false;
 
         var PreviousBall = ballSpawner.CheckPreviousBall(this);
-        var targetDir = PreviousBall.transform.position - transform.position;
-        var newDir = Vector3.RotateTowards(transform.forward, targetDir, Speed, 0.0f);
+        var targetPos = PreviousBall.transform.position;
 
-        transform.rotation = Quaternion.LookRotation(newDir);
-        transform.position = Vector3.MoveTowards(transform.position, PreviousBall.transform.position, Speed * 2 * Time.deltaTime);
+        destination = targetPos;
+        Agent.destination = destination;
+        Speed = FastSpeed;
 
-        float DistancePreviousBall = Vector3.Distance(transform.position, PreviousBall.transform.position);
-        if (DistancePreviousBall < 0.66f && !SpeedingUp)
-        {
+        float DistancePreviousBall = Vector3.Distance(transform.position, destination);
+        if (DistancePreviousBall < 1f && !SpeedingUp)
             MoveAgain();
-        }
     }
     void MoveAgain()
     {
         Moving = true;
+
+        destination = Waypoints[Index].transform.position;
+        Agent.destination = destination;
         Speed = DefaultSpeed;
-
-        //var PrevBall = ballSpawner.CheckPreviousBall(this);
-        //var PrevBallScript = PrevBall.GetComponent<Balls>();
-
-        //float Distance1 = Vector3.Distance(transform.position, Waypoints[Index].transform.position);
-        //float Distance2 = Vector3.Distance(transform.position, Waypoints[PrevBallScript.Index].transform.position);
-        //if (Distance1 > Distance2)
-        //{
-        //    Index = PrevBallScript.Index;
-        //}
     }
 
     public void PlaceShotBall(Color BallColor)
     {
-        var BallToSetUp = Instantiate(this, transform.position, transform.rotation);
+        var BallToSetUp = Instantiate(this, SpawnPos.position, transform.rotation);
         var BallToSetupScript = BallToSetUp.GetComponent<Balls>();
         var Renderer = BallToSetUp.GetComponent<Renderer>();
         var ListPos = ballSpawner.CheckListPos(this);
