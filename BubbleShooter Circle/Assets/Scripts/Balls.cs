@@ -13,10 +13,10 @@ public class Balls : MonoBehaviour
     bool SpeedingUp;
     bool Moving = true;
 
-    float DefaultSpeed = 0.6f;
-    float SpeedUpTime = 1.0f;
-    float FastSpeed = 1.2f;
-    float Speed = 0.6f;
+    public float DefaultSpeed = 0.6f;
+    public float SpeedUpTime = 1.0f;
+    public float FastSpeed = 1.2f;
+    public float Speed = 0.6f;
 
     public List<GameObject> Waypoints;
     public Transform SpawnPos;
@@ -38,6 +38,7 @@ public class Balls : MonoBehaviour
     {
         Agent.speed = Speed;
 
+        //Switch waypoints.
         if (Moving)
         {
             float Distance = Vector3.Distance(transform.position, Agent.destination);
@@ -48,14 +49,15 @@ public class Balls : MonoBehaviour
             }
         }
 
+        //Check Distance previous balls.
         var PrevBallPos = ballSpawner.CheckPreviousBall(this).transform.position;
         float DistancePreviousBall = Vector3.Distance(transform.position, PrevBallPos);
 
-        if (DistancePreviousBall > 1 && !SpeedingUp)
+        if (DistancePreviousBall > 0.75f && !SpeedingUp)
         {
             MoveBack();
         }
-        else if (DistancePreviousBall < 1f && !SpeedingUp && !Moving)
+        else if (DistancePreviousBall < 0.75f && !SpeedingUp && !Moving)
         {
             MoveAgain();
         }
@@ -73,16 +75,20 @@ public class Balls : MonoBehaviour
         Speed = FastSpeed;
 
         float DistancePreviousBall = Vector3.Distance(transform.position, destination);
-        if (DistancePreviousBall < 1f && !SpeedingUp)
+        if (DistancePreviousBall < 0.75f && !SpeedingUp)
             MoveAgain();
     }
     void MoveAgain()
     {
+        var BalListPos = ballSpawner.CheckListPos(this);
+        ballSpawner.CheckForTripples(MyColor, BalListPos);
+
         Moving = true;
 
         destination = Waypoints[Index].transform.position;
         Agent.destination = destination;
         Speed = DefaultSpeed;
+
     }
 
     public void PlaceShotBall(Color BallColor)
@@ -96,7 +102,7 @@ public class Balls : MonoBehaviour
         BallToSetupScript.MyColor = BallColor;
         ballSpawner.SpawnedBalls.Insert(ListPos, BallToSetUp);
         BallToSetupScript.Index = Index;
-        ballSpawner.SpeedUp(this, BallToSetUp);
+        ballSpawner.SpeedUp(this, BallColor);
     }
 
     public IEnumerator StartSpeedUp()

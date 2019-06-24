@@ -62,9 +62,10 @@ public sealed class BallSpawner : MonoBehaviour
     }
 
 
-    public void SpeedUp(Balls HitBall, Balls ShotBall)
+    public void SpeedUp(Balls HitBall, Color ShotBall)
     {
         var index = SpawnedBalls.IndexOf(HitBall);
+        index--;
         if (index < 0)
             return;
 
@@ -81,10 +82,11 @@ public sealed class BallSpawner : MonoBehaviour
     }
 
     public List<Balls> SameColoredBalls;
-    public void CheckForTripples(Balls ShotBall, int HitballSpot)
+    public void CheckForTripples(Color ShotBall, int HitballSpot)
     {
-        var MyColor = ShotBall.MyColor;
-        for (var i = HitballSpot; i >= 0; i++)
+        var MyColor = ShotBall;
+        HitballSpot -= 1;
+        for (var i = HitballSpot; i >= 0; i--)
         {
             if (SpawnedBalls[i].MyColor == MyColor)
             {
@@ -95,10 +97,10 @@ public sealed class BallSpawner : MonoBehaviour
                 break;
         }
 
-        HitballSpot -= 2;
+        HitballSpot += 1;
         if (HitballSpot > 0)
         {
-            for (var i = HitballSpot; i <= SpawnedBalls.Count; i--)
+            for (var i = HitballSpot; i <= SpawnedBalls.Count; i++)
             {
                 if (SpawnedBalls[i].MyColor == MyColor)
                 {
@@ -111,10 +113,9 @@ public sealed class BallSpawner : MonoBehaviour
         }
 
 
-        if (SameColoredBalls.Count >= 2)
+        if (SameColoredBalls.Count >= 3)
         {
             AllowSpeedUp = false;
-            SameColoredBalls.Add(ShotBall);
 
             for (var i = 0; i < SameColoredBalls.Count; i++)
             {
