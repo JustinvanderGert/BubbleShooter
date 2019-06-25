@@ -34,6 +34,7 @@ public class Balls : MonoBehaviour
         
         destination = Waypoints[Index].transform.position;
         Agent.destination = destination;
+
     }
 
     void Update()
@@ -57,9 +58,10 @@ public class Balls : MonoBehaviour
 
         if (DistancePreviousBall > 1 && !SpeedingUp)
         {
-            if (FirstMoveBack && Agent.hasPath)
+            if (FirstMoveBack && !Agent.pathPending)
             {
-                HighDist = DistancePreviousBall;
+                HighDist = Agent.remainingDistance;
+                //HighDist = DistancePreviousBall;
                 Debug.Log(HighDist);
                 FirstMoveBack = false;
             }
