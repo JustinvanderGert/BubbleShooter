@@ -43,7 +43,7 @@ public class ShotBall : MonoBehaviour
         {
             Shot = false;
             Balls HitBall = Other.gameObject.GetComponent<Balls>();
-            HitBall.PlaceShotBall(MyColor);
+            HitBall.StartPlaceBall(MyColor);
 
             Destroy(gameObject);
         }

@@ -12,11 +12,13 @@ public class Balls : MonoBehaviour
 
     bool SpeedingUp;
     bool Moving = true;
+    bool FirstMoveBack = true;
 
     public float DefaultSpeed = 0.6f;
     public float SpeedUpTime = 1.0f;
     public float FastSpeed = 1.2f;
     public float Speed = 0.6f;
+    public float HighDist;
 
     public List<GameObject> Waypoints;
     public Transform SpawnPos;
@@ -53,17 +55,24 @@ public class Balls : MonoBehaviour
         var PrevBallPos = ballSpawner.CheckPreviousBall(this).transform.position;
         float DistancePreviousBall = Vector3.Distance(transform.position, PrevBallPos);
 
-        if (DistancePreviousBall > 0.75f && !SpeedingUp)
+        if (DistancePreviousBall > 1 && !SpeedingUp)
         {
+            if (FirstMoveBack && Agent.hasPath)
+            {
+                HighDist = DistancePreviousBall;
+                Debug.Log(HighDist);
+                FirstMoveBack = false;
+            }
+
             MoveBack();
         }
-        else if (DistancePreviousBall < 0.75f && !SpeedingUp && !Moving)
+        else if (DistancePreviousBall < 1 && !SpeedingUp && !Moving)
         {
             MoveAgain();
         }
     }
 
-    void MoveBack()
+    void MoveBack( )
     {
         Moving = false;
 
@@ -75,13 +84,20 @@ public class Balls : MonoBehaviour
         Speed = FastSpeed;
 
         float DistancePreviousBall = Vector3.Distance(transform.position, destination);
-        if (DistancePreviousBall < 0.75f && !SpeedingUp)
+        if (DistancePreviousBall < 1 && !SpeedingUp)
+        {
+            HighDist = 0;
+            FirstMoveBack = false;
             MoveAgain();
+        }
     }
-    void MoveAgain()
+    void MoveAgain( )
     {
-        var BalListPos = ballSpawner.CheckListPos(this);
-        ballSpawner.CheckForTripples(MyColor, BalListPos);
+        if (HighDist > 2.2f)
+        {
+            var BalListPos = ballSpawner.CheckListPos(this);
+            ballSpawner.CheckForTripples(MyColor, BalListPos);
+        }
 
         Moving = true;
 
@@ -91,7 +107,12 @@ public class Balls : MonoBehaviour
 
     }
 
-    public void PlaceShotBall(Color BallColor)
+    public void StartPlaceBall(Color BallColor)
+    {
+        StartCoroutine(PlaceShotBall(BallColor));
+    }
+
+    IEnumerator PlaceShotBall(Color BallColor)
     {
         var BallToSetUp = Instantiate(this, SpawnPos.position, transform.rotation);
         var BallToSetupScript = BallToSetUp.GetComponent<Balls>();
@@ -102,7 +123,13 @@ public class Balls : MonoBehaviour
         BallToSetupScript.MyColor = BallColor;
         ballSpawner.SpawnedBalls.Insert(ListPos, BallToSetUp);
         BallToSetupScript.Index = Index;
+        BallToSetUp.gameObject.SetActive(false);
+
         ballSpawner.SpeedUp(this, BallColor);
+        yield return new WaitForSeconds(0.25f);
+
+        if (BallToSetUp)
+            BallToSetUp.gameObject.SetActive(true);
     }
 
     public IEnumerator StartSpeedUp()

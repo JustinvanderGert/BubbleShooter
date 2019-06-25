@@ -65,7 +65,6 @@ public sealed class BallSpawner : MonoBehaviour
     public void SpeedUp(Balls HitBall, Color ShotBall)
     {
         var index = SpawnedBalls.IndexOf(HitBall);
-        index--;
         if (index < 0)
             return;
 
