@@ -18,6 +18,8 @@ public sealed class BallSpawner : MonoBehaviour
     public Balls BallPrefab;
     public float SpawnTimer;
     public int BallsToSend;
+    public Color TempColor = Colors[0];
+    public int tempIndex;
 
     bool AllowSpeedUp = true;
 
@@ -115,12 +117,20 @@ public sealed class BallSpawner : MonoBehaviour
         if (SameColoredBalls.Count >= 3)
         {
             AllowSpeedUp = false;
+            tempIndex = SpawnedBalls.Count;
 
             for (var i = 0; i < SameColoredBalls.Count; i++)
             {
+                var IndexOf = SpawnedBalls.IndexOf(SameColoredBalls[i]);
+                if (tempIndex > IndexOf)
+                    tempIndex = IndexOf;
+
                 SpawnedBalls.Remove(SameColoredBalls[i]);
                 Destroy(SameColoredBalls[i].gameObject);
             }
+            TempColor = SpawnedBalls[tempIndex].MyColor;
+            tempIndex--;
+
             SameColoredBalls.Clear();
         }
         SameColoredBalls.Clear();

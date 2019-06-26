@@ -31,7 +31,7 @@ public class Balls : MonoBehaviour
         MyColor = GetComponent<Renderer>().material.color;
         ballSpawner = FindObjectOfType<BallSpawner>();
         Agent = GetComponent<NavMeshAgent>();
-        
+
         destination = Waypoints[Index].transform.position;
         Agent.destination = destination;
 
@@ -58,14 +58,6 @@ public class Balls : MonoBehaviour
 
         if (DistancePreviousBall > 1 && !SpeedingUp)
         {
-            if (FirstMoveBack && !Agent.pathPending)
-            {
-                HighDist = Agent.remainingDistance;
-                //HighDist = DistancePreviousBall;
-                Debug.Log(HighDist);
-                FirstMoveBack = false;
-            }
-
             MoveBack();
         }
         else if (DistancePreviousBall < 1 && !SpeedingUp && !Moving)
@@ -74,7 +66,7 @@ public class Balls : MonoBehaviour
         }
     }
 
-    void MoveBack( )
+    void MoveBack()
     {
         Moving = false;
 
@@ -93,10 +85,11 @@ public class Balls : MonoBehaviour
             MoveAgain();
         }
     }
-    void MoveAgain( )
+    void MoveAgain()
     {
-        if (HighDist > 2.2f)
+        if (ballSpawner.TempColor == MyColor && ballSpawner.tempIndex == ballSpawner.CheckListPos(this))
         {
+            Debug.Log("Test");
             var BalListPos = ballSpawner.CheckListPos(this);
             ballSpawner.CheckForTripples(MyColor, BalListPos);
         }
@@ -106,7 +99,6 @@ public class Balls : MonoBehaviour
         destination = Waypoints[Index].transform.position;
         Agent.destination = destination;
         Speed = DefaultSpeed;
-
     }
 
     public void StartPlaceBall(Color BallColor)
