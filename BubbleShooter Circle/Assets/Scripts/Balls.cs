@@ -7,7 +7,11 @@ public class Balls : MonoBehaviour
 {
     BallSpawner ballSpawner;
     NavMeshAgent Agent;
+
     Vector3 destination;
+    Vector3 LastWaypointPos;
+
+    int LastWaypointNum;
     int Index = 0;
 
     bool SpeedingUp;
@@ -34,18 +38,27 @@ public class Balls : MonoBehaviour
 
         destination = Waypoints[Index].transform.position;
         Agent.destination = destination;
-
+        
+        LastWaypointNum = Waypoints.Count;
+        LastWaypointNum--;
+        LastWaypointPos = Waypoints[LastWaypointNum].transform.position;
     }
 
     void Update()
     {
+        var distanceEnd = Vector3.Distance(transform.position, LastWaypointPos);
+        if (distanceEnd <= 0.5f)
+        {
+            GameOver();
+        }
+
         Agent.speed = Speed;
 
         //Switch waypoints.
         if (Moving)
         {
             float Distance = Vector3.Distance(transform.position, Agent.destination);
-            if (Distance <= 0.5f)
+            if (Distance <= 0f)
             {
                 destination = Waypoints[Index++].transform.position;
                 Agent.destination = destination;
@@ -89,7 +102,6 @@ public class Balls : MonoBehaviour
     {
         if (ballSpawner.TempColor == MyColor && ballSpawner.tempIndex == ballSpawner.CheckListPos(this))
         {
-            Debug.Log("Test");
             var BalListPos = ballSpawner.CheckListPos(this);
             ballSpawner.CheckForTripples(MyColor, BalListPos);
         }
@@ -135,5 +147,10 @@ public class Balls : MonoBehaviour
 
         Speed = DefaultSpeed;
         SpeedingUp = false;
+    }
+
+    void GameOver()
+    {
+        Debug.Log("Game Over");
     }
 }
